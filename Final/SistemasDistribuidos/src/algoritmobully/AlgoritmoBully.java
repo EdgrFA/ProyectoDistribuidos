@@ -74,7 +74,7 @@ public class AlgoritmoBully extends Thread{
         
         System.out.println("Bully: Realizando peticion eleccion");
         for(String ip : IPs){
-            int nivel = servidores.get("/" + ip);
+            int nivel = servidores.get(ip);
             if(idServidor > nivel)
                 continue;
             try {
@@ -135,7 +135,7 @@ public class AlgoritmoBully extends Thread{
             for(;;){
                 //Esperamos una conexión 
                 Socket cl = s.accept();
-                String dirCliente = String.valueOf(cl.getInetAddress());
+                String dirCliente = String.valueOf(cl.getInetAddress()).split("/")[1];
 
                 DataInputStream dis = new DataInputStream(cl.getInputStream());
                 int peticion = dis.readInt();
