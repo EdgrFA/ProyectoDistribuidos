@@ -69,7 +69,7 @@ public class AlgoritmoBully extends Thread{
     
     public boolean peticionEleccion(int limiteTiempo){
         //Retornar falso si no es nuevo administrador
-        if(servidores.isEmpty())
+        if(servidores.size() < IPs.length)
             return false;
         
         System.out.println("Bully: Realizando peticion eleccion");

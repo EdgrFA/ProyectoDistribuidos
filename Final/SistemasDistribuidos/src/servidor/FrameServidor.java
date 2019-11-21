@@ -97,7 +97,8 @@ public class FrameServidor extends JFrame{
         String mssg = "Introduce el IP del servidor para replicar";
         IPs[0] = JOptionPane.showInputDialog(null, mssg);
         IPs[1] = JOptionPane.showInputDialog(null, mssg);
-        //IPs[0] = "192.168.0.3";
+        IPs[0] = "10.100.69.15";
+        IPs[1] = "10.100.68.204";
         //!!!Falta pedir nivel del servidor
         mssg = "Introduce el id del Servidor";
         int idServidor = Integer.parseInt(JOptionPane.showInputDialog(null, mssg));
