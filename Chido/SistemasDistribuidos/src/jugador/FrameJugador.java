@@ -95,7 +95,7 @@ public class FrameJugador extends JFrame{
             try {
                 
                 sj = new SocketJugador(Preguntar_Admin(), Ports.puertoServidor);
-                sj.enviarArchivo(Archivo, Nombre, tam);                
+                sj.enviarArchivo(Archivo, Nombre, tam);                                
                 messageFrame("Archivo enviado.");
             } catch (IOException ex) {
                 messageFrame("No se pudo enviar archivo");

@@ -40,6 +40,8 @@ public class ServidorFE extends Thread{
                     dos = new DataOutputStream(cl.getOutputStream());
                     dos.writeUTF(bebe.getIpAdmin());
                     dos.flush();               
+                    dos.close();
+                    cl.close();
 
             }
         } catch (IOException ex) {
