@@ -27,7 +27,6 @@ public class FrameJugador extends JFrame{
     private JLabel archivo;
     private long tam;
     private boolean existeArchivo;
-    private SocketJugador sj;
     
     public FrameJugador(String ip[]) {
         super("Jugador");
@@ -93,7 +92,7 @@ public class FrameJugador extends JFrame{
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                
+                SocketJugador sj;
                 sj = new SocketJugador(Preguntar_Admin(), Ports.puertoServidor);
                 sj.enviarArchivo(Archivo, Nombre, tam);                                
                 messageFrame("Archivo enviado.");

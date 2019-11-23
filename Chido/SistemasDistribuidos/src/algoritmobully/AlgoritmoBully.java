@@ -91,10 +91,12 @@ public class AlgoritmoBully extends Thread{
                 //reciviendo ok
                 int r = dis.readInt();
                 
+                
                 dos.close();
                 cl.close();
                 
-                return false;
+                if(r == ok)
+                    return false;
             } catch (IOException ex) {
                 System.out.println("Bully: " + ex.toString());
             }
@@ -160,7 +162,14 @@ public class AlgoritmoBully extends Thread{
                             dos.flush();
                             System.out.println("Bully: Se envio OK a servidor: " + dirCliente);
                             dos.close();
+                        }else{
+                            DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
+                            dos.writeInt(1);
+                            dos.flush();
+                            System.out.println("Bully: Se envio OK a servidor: " + dirCliente);
+                            dos.close();
                         }
+                        
                         break;
                     case 2:
                         //NOTIFICACION DE NUEVO ADMINISTRADOR
