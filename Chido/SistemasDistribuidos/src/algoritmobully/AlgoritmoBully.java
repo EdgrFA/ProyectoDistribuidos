@@ -14,6 +14,7 @@ public class AlgoritmoBully extends Thread{
     private final int port, idServidor;
     private String [] IPs;
     private int idAdmin;
+    private String ipAdminStr;
 
     //Falta agregar una bandera para avisas si cambio administrador
     public AlgoritmoBully(String [] IPs, int port, int idServidor) {
@@ -22,6 +23,8 @@ public class AlgoritmoBully extends Thread{
         this.idServidor = idServidor;
         servidores = new HashMap<>();
         idAdmin = -1;
+        
+        ipAdminStr = null;
     }
 
     public HashMap<String, Integer> getServidores() {
@@ -30,6 +33,10 @@ public class AlgoritmoBully extends Thread{
 
     public int getIdAdmin() {
         return idAdmin;
+    }
+    
+    public String getStrAdmin(){
+        return ipAdminStr;
     }
     
     public void setIdAdmin(int id){
@@ -80,7 +87,7 @@ public class AlgoritmoBully extends Thread{
                 continue;
             try {
                 Socket cl = new Socket(ip, port);
-                cl.setSoTimeout(limiteTiempo*1000);
+                cl.setSoTimeout(3*1000);
                 DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
                 DataInputStream dis = new DataInputStream(cl.getInputStream());
                 
@@ -113,6 +120,7 @@ public class AlgoritmoBully extends Thread{
         for (String ip : IPs) {
             try {
                 Socket cl = new Socket(ip, port);
+                cl.setSoTimeout(2*1000);
                 DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
                 //Enviar id peticion
                 dos.writeInt(2);
@@ -166,7 +174,7 @@ public class AlgoritmoBully extends Thread{
                             DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
                             dos.writeInt(1);
                             dos.flush();
-                            System.out.println("Bully: Se envio OK a servidor: " + dirCliente);
+                            System.out.println("Bully: Se envio anti OK a servidor: " + dirCliente);
                             dos.close();
                         }
                         
@@ -174,6 +182,7 @@ public class AlgoritmoBully extends Thread{
                     case 2:
                         //NOTIFICACION DE NUEVO ADMINISTRADOR
                         idAdmin = servidores.get(dirCliente);
+                        ipAdminStr = dirCliente;
                         System.out.println("Bully: Se recibio notificacion de eleccion de servidor: " + dirCliente);
                         if(idServidor > idAdmin)
                             peticionEleccion(5);

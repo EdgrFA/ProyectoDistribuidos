@@ -19,9 +19,10 @@ public class SocketServidorTiempo {
     
     public RelojBerkeley consultarTiempoServidor(String ip) throws IOException{
         Socket cl = new Socket(ip, port);
+        cl.setSoTimeout(3*1000);
         DataInputStream dis= new DataInputStream(cl.getInputStream());   
         DataOutputStream dos= new DataOutputStream(cl.getOutputStream());
-
+        
         //Tomar tiempos antes de envio
         int t0Horas = reloj.getHoras();
         int t0Minutos = reloj.getMinutos();
@@ -107,6 +108,7 @@ public class SocketServidorTiempo {
     
     public boolean enviarAjuste(RelojBerkeley servidor) throws IOException{
         Socket cl = new Socket(servidor.getIP(), port);
+        cl.setSoTimeout(3*1000);
         DataOutputStream dos= new DataOutputStream(cl.getOutputStream());
 
         dos.writeInt(2);

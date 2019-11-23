@@ -87,7 +87,7 @@ public class FrameServidor extends JFrame{
         AlgoritmoBerkeley algoritmoB = new AlgoritmoBerkeley(IPs, bully, reloj);
         algoritmoB.start();
         //Servidor para FE
-        ServidorFE sfe= new ServidorFE(algoritmoB);
+        ServidorFE sfe= new ServidorFE(bully);
         sfe.start();
         //Servidor para jugadores
         SocketServidor ss = new SocketServidor(IPs, Ports.puertoServidor, Ports.puertoReplicar, 

@@ -98,7 +98,7 @@ public class FrameServidor extends JFrame{
         IPs[0] = JOptionPane.showInputDialog(null, mssg);
         IPs[1] = JOptionPane.showInputDialog(null, mssg);
         IPs[0] = "10.100.69.15";
-        IPs[1] = "10.100.68.204";
+        IPs[1] = "10.100.68.129";
         //!!!Falta pedir nivel del servidor
         mssg = "Introduce el id del Servidor";
         int idServidor = Integer.parseInt(JOptionPane.showInputDialog(null, mssg));

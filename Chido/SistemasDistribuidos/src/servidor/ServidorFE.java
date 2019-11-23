@@ -6,7 +6,6 @@
 package servidor;
 
 import Caracteres.Contador;
-import algoritmoberkeley.AlgoritmoBerkeley;
 import algoritmobully.AlgoritmoBully;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -23,8 +22,8 @@ import java.util.logging.Logger;
  */
 public class ServidorFE extends Thread{
     private int port;
-    private AlgoritmoBerkeley bebe;
-    public ServidorFE(AlgoritmoBerkeley bebe) {
+    private algoritmobully.AlgoritmoBully bebe;
+    public ServidorFE(AlgoritmoBully bebe) {
         this.port = 7004;
         this.bebe=bebe;
     }               
@@ -38,7 +37,7 @@ public class ServidorFE extends Thread{
                     Socket cl = s.accept();           
                     DataOutputStream dos;
                     dos = new DataOutputStream(cl.getOutputStream());
-                    dos.writeUTF(bebe.getIpAdmin());
+                    dos.writeUTF(bebe.getStrAdmin());
                     dos.flush();               
                     dos.close();
                     cl.close();
