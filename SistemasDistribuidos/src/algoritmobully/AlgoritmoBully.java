@@ -184,10 +184,7 @@ public class AlgoritmoBully extends Thread{
                             if(servInfo.getIP().equals(dirCliente)){
                                 if(miServidor.getIdServidor() > servInfo.getIdServidor()){
                                     DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
-                                    if(administrador != null && administrando())
-                                        dos.writeInt(administrando);
-                                    else
-                                        dos.writeInt(ok);
+                                    dos.writeInt(ok);
                                     dos.flush();
                                     
                                     System.out.println("Bully: Se envio OK a servidor: " + dirCliente);

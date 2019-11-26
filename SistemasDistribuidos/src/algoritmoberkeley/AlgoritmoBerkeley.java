@@ -78,8 +78,10 @@ public class AlgoritmoBerkeley extends Thread{
             if(!bully.administrando())
                 return;
             //Servidor caido
-            if(!servInfo.isActivo())
+            if(!servInfo.isActivo()){
+                System.out.println(servInfo.getIP() + " servidor caido!!!!");
                 continue;
+            }
             
             try {
                 System.out.println("Berkeley(Administrador): Consultando tiempo de " + servInfo.getIP());
@@ -158,6 +160,7 @@ public class AlgoritmoBerkeley extends Thread{
                     sst.clienteBerkeley(limiteTiempo);
                 } catch (IOException ex) {
                     System.out.println("Berkeley(Cliente): " + ex.toString());
+                    bully.getAdministrador().setActivo(false);
                     bully.setAdministrador(null);
                 }
             }
