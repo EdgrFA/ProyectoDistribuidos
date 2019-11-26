@@ -18,12 +18,12 @@ import reloj.RelojComponent;
 public class SocketServidor extends Thread{
     private SocketServidorReplica ssr;
     private final int port, portServidorR;
-    private final JLabel Caracter[], Contador[],ip;
+    private final JLabel Caracter[], Contador[], ip;
     private RelojComponent reloj;
-    private String [] IPsReplica;
+    private String [] IPsReplica; //Utilizar solo servidores activos
 
     public SocketServidor(String [] IPs,int port, int portServidorR, 
-                RelojComponent reloj, JLabel Caracter[], JLabel Contador[],JLabel ip) {
+                RelojComponent reloj, JLabel[] Caracter, JLabel Contador[], JLabel ip) {
         this.port = port;
         this.portServidorR = portServidorR;
         this.reloj = reloj;
@@ -45,49 +45,45 @@ public class SocketServidor extends Thread{
             //Esperamos una conexión 
             Socket cl = s.accept();
             String dirCliente = String.valueOf(cl.getInetAddress()).split("/")[1];
-            System.out.println("equisde: " + dirCliente);
+            System.out.println("Jugador: Conexion con " + dirCliente);
+            ip.setText(dirCliente);
+            
             DataInputStream dis = new DataInputStream(cl.getInputStream());
             String nombre = dis.readUTF();
             long tam = dis.readLong();
 
-            System.out.println("Recibiendo el archivo " + nombre);
+            System.out.println("Jugador: Recibiendo el archivo " + nombre);
             FileOutputStream fos = new FileOutputStream(nombre);
             DataOutputStream dos = new DataOutputStream(fos);
 
             //Sección para recibir el archivo
             long recibidos = 0;
-            int n, porcentaje;
+            int n;
             while(recibidos < tam){
                 byte []b = new byte[1024];
                 n = dis.read(b);                        
                 dos.write(b,0,n);
                 dos.flush();
                 recibidos = recibidos + n;
-                porcentaje = (int)(recibidos*100/tam);
-                System.out.print("Recibido: " + porcentaje + "%\r");
             }//while
 
-            System.out.println("\nArchivo recibido.\n");
+            System.out.println("Jugador: Archivo recibido.");
             fos.close();
             dos.close();
             dis.close();
             cl.close();
-
-            //Realizar suma y registrar
-            //int suma = sumarArchivo(nombre);
             
-
-            //Colocar ip y caracteres con frecuencia en interfaz
-            ip.setText(dirCliente);
-            Contador cars= new Contador();
-            int arreglo[][]=cars.Cuenta_Caracter(nombre);
+            //Colocar caracteres con frecuencia en interfaz
+            
+            Contador cars = new Contador();
+            int arreglo[][] = cars.Cuenta_Caracter(nombre);
             registrarOperacion(dirCliente, arreglo);
             for (int i = 0; i < 27; i++) {
                 Caracter[i].setText(String.valueOf((char)arreglo[0][i]));
                 Contador[i].setText(String.valueOf(arreglo[1][i]));
             }
             
-            messageFrame("Se recibio archivo de " + dirCliente);
+            messageFrame("Se recibio arreglo de Jugador: " + dirCliente);
         }
     }
     
@@ -110,7 +106,7 @@ public class SocketServidor extends Thread{
         try {
             Conector con = new Conector();
             con.Insertar(ip, suma, reloj.getHoras(), reloj.getMinutos(), reloj.getSegundos());
-            System.out.println("Se registro correctamente en la BD.");
+            System.out.println("BD: Se registro correctamente.");
         } catch (SQLException | ClassNotFoundException ex) {
             System.out.println(ex.toString());
         }

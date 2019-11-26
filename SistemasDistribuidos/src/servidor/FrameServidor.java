@@ -8,15 +8,12 @@ import javax.swing.JPanel;
 import reloj.RelojComponent;
 import algoritmoberkeley.AlgoritmoBerkeley;
 import algoritmobully.AlgoritmoBully;
-import java.awt.Color;
-import javax.swing.BorderFactory;
 import sources.Ports;
 
 public class FrameServidor extends JFrame{
-    
     private JLabel[] Caracter= new JLabel [27];
-    private JLabel[] Contador= new JLabel [27];
-    private JLabel ConexionValue, DatosValue;
+    private JLabel[] Contador = new JLabel [27];
+    private JLabel conexionValue;
     private RelojComponent reloj;
     private final String [] IPs;
     private final JPanel panel;
@@ -28,7 +25,7 @@ public class FrameServidor extends JFrame{
         super("Servidor");
         this.IPs = IPs;
         this.nivelServidor = nivelServidor;
-        super.setSize(300, 400);
+        super.setSize(220, 500);
         super.setResizable(false);
         super.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         super.setLocationRelativeTo(null);
@@ -38,41 +35,37 @@ public class FrameServidor extends JFrame{
     }
     
     private void initcomponents(){
-        JLabel servR = new JLabel("Servidor Replica: " + IPs[0]);
-        Dimension size = servR.getPreferredSize();
-        servR.setBounds(30, 300, size.width+10, size.height);
-        panel.add(servR);
+        JLabel cabecera = new JLabel("Caracter | Frecuencia ");
+        Dimension sizea = cabecera.getPreferredSize();
+        cabecera.setBounds(41, 10, sizea.width+30, sizea.height);
+        panel.add(cabecera);
         
-        JLabel Conexion = new JLabel("Caracter: ");
-        ConexionValue = new JLabel("Conexión: ");
-        JLabel Datos = new JLabel("Frecuencia: "); 
-        DatosValue = new JLabel("");
-        Dimension sizea = Conexion.getPreferredSize();
-        Dimension sizeb = ConexionValue.getPreferredSize();
-        Dimension sizec = Datos.getPreferredSize();
-        Dimension sized = DatosValue.getPreferredSize();
-        Conexion.setBounds(120, 5, sizea.width+30, sizea.height);
-        ConexionValue.setBounds(15, 50, sizeb.width+30, sizeb.height);
-        Datos.setBounds(180, 5, sizec.width+30, sizec.height);
-        DatosValue.setBounds(15, 80, sized.width+30, sized.height); 
-        
+        //Vista Caracteres
+        Caracter= new JLabel [27];
+        String[] carac = {"a","b","c","d","e","f","g","h","i","j",
+                          "k","l","m","n","ñ","o","p","q","r","s",
+                          "t","u","v","w","x","y","z"};
         for (int i = 0; i < 27; i++) {
-            Caracter[i]=new JLabel("c");
-            Dimension sizex=Caracter[i].getPreferredSize();
-            Caracter[i].setBounds(160, (i*10)+15, sizex.width+30, sizex.height);            
+            Caracter[i] = new JLabel(carac[i]);
+            Dimension sizex = Caracter[i].getPreferredSize();
+            Caracter[i].setBounds(81, (i*13)+27, sizex.width+30, sizex.height);            
             panel.add(Caracter[i]);
             
-            Contador[i]=new JLabel("co");
-            Dimension sizex2=Contador[i].getPreferredSize();
-            Contador[i].setBounds(180, (i*10)+15, sizex2.width+30, sizex2.height);            
+            Contador[i] = new JLabel(":  ---");
+            Dimension sizex2 = Contador[i].getPreferredSize();
+            Contador[i].setBounds(96, (i*13)+27, sizex2.width+30, sizex2.height);            
             panel.add(Contador[i]);
-            
         }
         
-        panel.add( Conexion );  
-        panel.add(ConexionValue );  
-        panel.add( Datos );  
-        //panel.add(DatosValue );   
+        JLabel ConexionValue = new JLabel("Conexión: ");
+        Dimension sizeb = ConexionValue.getPreferredSize();
+        ConexionValue.setBounds(30, 392, sizeb.width+30, sizeb.height);
+        panel.add(ConexionValue);
+        
+        conexionValue = new JLabel("");
+        Dimension sized = conexionValue.getPreferredSize();
+        conexionValue.setBounds(95, 392, sized.width+30, sized.height);
+        panel.add(conexionValue);   
         
         reloj = new RelojComponent(1, 30, 30, 1, panel);
         reloj.start();
@@ -87,11 +80,11 @@ public class FrameServidor extends JFrame{
         AlgoritmoBerkeley algoritmoB = new AlgoritmoBerkeley(IPs, bully, reloj);
         algoritmoB.start();
         //Servidor para FE
-        ServidorFE sfe= new ServidorFE(bully);
+        ServidorFE sfe = new ServidorFE(bully);
         sfe.start();
         //Servidor para jugadores
         SocketServidor ss = new SocketServidor(IPs, Ports.puertoServidor, Ports.puertoReplicar, 
-                    reloj, Caracter,Contador,DatosValue);
+                    reloj, Caracter, Contador, conexionValue);
         ss.start();
     }
     

@@ -1,6 +1,6 @@
 package servidortiempo;
 
-import algoritmoberkeley.AlgoritmoBully;
+import algoritmoberkeley.AlgoritmoBerkeley;
 import algoritmobully.AlgoritmoBully;
 import java.awt.Dimension;
 import javax.swing.JFrame;
@@ -50,7 +50,7 @@ public class FrameServidorTiempo extends JFrame{
         bully.enviarNivel();
         bully.asignarAdministracion();
         
-        AlgoritmoBully algoritmoB = new AlgoritmoBully(IPs, bully, reloj);
+        AlgoritmoBerkeley algoritmoB = new AlgoritmoBerkeley(IPs, bully, reloj);
         algoritmoB.start();
     }
 

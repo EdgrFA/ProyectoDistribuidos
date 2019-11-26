@@ -1,12 +1,10 @@
 package algoritmoberkeley;
 
 import algoritmobully.AlgoritmoBully;
+import algoritmobully.ServidorInfo;
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import reloj.RelojComponent;
 import sources.Ports;
 
@@ -14,7 +12,6 @@ public class AlgoritmoBerkeley extends Thread{
     private int rangoError, zigma, limiteTiempo; //Valor en segundos 
     private String [] IPs = new String[2];
     private final RelojComponent reloj;
-    private String ipAdmin;
     private AlgoritmoBully bully;
 
     public AlgoritmoBerkeley(String [] IPs, AlgoritmoBully bully, RelojComponent reloj) {
@@ -25,7 +22,6 @@ public class AlgoritmoBerkeley extends Thread{
         this.rangoError = 1800;
         this.limiteTiempo = 20;
         this.bully = bully;
-        this.ipAdmin = null;
     }
     
     private int promediarRelojes(ArrayList<RelojBerkeley> relojes){
@@ -77,25 +73,32 @@ public class AlgoritmoBerkeley extends Thread{
         //Consultar Tiempos Servidores
         System.out.println("Berkeley(Administrador): Ejecutando algoritmo.");
         ArrayList<RelojBerkeley> relojes = new ArrayList<>();
-        for (int i = 0; i < IPs.length; i++) {
+        for (ServidorInfo servInfo : bully.getServidores()) {
+            //Se desactivo administracion
+            if(!bully.administrando())
+                return;
+            //Servidor caido
+            if(!servInfo.isActivo())
+                continue;
+            
             try {
-                System.out.println("Berkeley(Administrador): Consultando tiempo de " + IPs[i]);
-                RelojBerkeley relojB = sst.consultarTiempoServidor(IPs[i]);
+                System.out.println("Berkeley(Administrador): Consultando tiempo de " + servInfo.getIP());
+                RelojBerkeley relojB = sst.consultarTiempoServidor(servInfo.getIP());
                 relojes.add(relojB);
             } catch (IOException ex) {
-                System.out.println("Berkeley(Administrador): " + ex.toString());
+                System.out.println("Berkeley(Administrador): No se pudo consultar tiempo de " + servInfo.getIP());
             }
         }
 
         //Promediar Tiempos
-        System.out.println("Berkeley(Administrador): Promediando tiempos y enviando ajustes");
         int promSegundos = 0;
         if(!relojes.isEmpty())
             promSegundos = promediarRelojes(relojes);
         else{
-            System.out.println("Berkeley(Administrador): Sin tiempos.");
+            System.out.println("Berkeley(Administrador): Sin tiempos para promediar.");
             return;
         }
+        System.out.println("Berkeley(Administrador): Promediando tiempos y enviando ajustes");
 
         //Ajustar Reloj Principal
         if(promSegundos != 0){
@@ -117,20 +120,17 @@ public class AlgoritmoBerkeley extends Thread{
             }
         }
     }
-
-    public String getIpAdmin() {
-        return ipAdmin;
-    }    
+    
     @Override
     public void run() {
         int adminActual = -1;
         SocketServidorTiempo sst = new SocketServidorTiempo(Ports.puertoBerkeley, reloj);
         for(;;){
             
-            if(bully.getIdAdmin() == -1){
+            if(bully.getAdministrador() == null){
                 //No existe aun servidor
                 System.out.println("Berkeley: Buscando servidor.");
-                bully.peticionEleccion(5);
+                bully.peticionEleccion();
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {
@@ -139,30 +139,27 @@ public class AlgoritmoBerkeley extends Thread{
             }
             
             else if(bully.administrando()){
+                //Dormir Zigma segundos
+                try {
+                    Thread.sleep(zigma*1000);
+                } catch (InterruptedException ex) {
+                    System.out.println("Berkeley(Servidor): " + ex.toString());
+                }
+                
                 //Administrador Berkeley
                 System.out.println("Berkeley: Administrando algoritmo.");
-                while(bully.administrando()){
-                    adminBerkeley(sst);
-                    //Dormir Zigma segundos
-                    try {
-                        Thread.sleep(zigma*1000);
-                    } catch (InterruptedException ex) {
-                        System.out.println("Berkeley(Servidor): " + ex.toString());
-                    }
-                }
+                adminBerkeley(sst);
             }
             
             else{
                 //Clientes Berkeley
                 System.out.println("Berkeley: Modo cliente.");
-                adminActual = bully.getIdAdmin();
                 try {
                     sst.clienteBerkeley(limiteTiempo);
                 } catch (IOException ex) {
                     System.out.println("Berkeley(Cliente): " + ex.toString());
+                    bully.setAdministrador(null);
                 }
-                if(adminActual == bully.getIdAdmin())
-                    bully.setIdAdmin(-1);
             }
         }
     }

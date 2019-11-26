@@ -5,136 +5,147 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class AlgoritmoBully extends Thread{
     static int ok = 0;
+    static int administrando = 1;
     
-    HashMap<String, Integer> servidores;
-    private final int port, idServidor;
-    private String [] IPs;
-    private int idAdmin;
+    //HashMap<String, Integer> servidores;
+    private ArrayList<ServidorInfo> servidores;
+    private final int port;
+    //private String [] IPs;
+    private ServidorInfo administrador, miServidor;
     private String ipAdminStr;
 
-    //Falta agregar una bandera para avisas si cambio administrador
+    //Falta agregar una bandera para avisar si cambio administrador
     public AlgoritmoBully(String [] IPs, int port, int idServidor) {
-        this.IPs = IPs;
+        servidores = new ArrayList<>();
+        for (String IP : IPs)
+            servidores.add(new ServidorInfo(IP));
         this.port = port;
-        this.idServidor = idServidor;
-        servidores = new HashMap<>();
-        idAdmin = -1;
+        miServidor = new ServidorInfo("localhost");
+        miServidor.setIdServidor(idServidor);
+        administrador = null;
         
         ipAdminStr = null;
     }
 
-    public HashMap<String, Integer> getServidores() {
-        return servidores;
+    public ServidorInfo getAdministrador() {
+        return administrador;
     }
 
-    public int getIdAdmin() {
-        return idAdmin;
+    public void setAdministrador(ServidorInfo administrador) {
+        this.administrador = administrador;
+    }
+
+    public ArrayList<ServidorInfo> getServidores() {
+        return servidores;
     }
     
     public String getStrAdmin(){
         return ipAdminStr;
     }
     
-    public void setIdAdmin(int id){
-        idAdmin = -1;
-    }
-    
     public boolean administrando(){
-        if(idServidor == idAdmin)
+        if(miServidor.equals(administrador))
             return true;
         return false;
     }
     
     //Volver administrador al servidor tiempo desde el inicio
     public void asignarAdministracion(){
-        idAdmin = idServidor;
+        administrador = miServidor;
         notificarAdministracion();
     }
     
     public void enviarNivel(){
-        for (String ip : IPs) {
-            try {
-                System.out.println("Bully: Enviando Nivel a: " + ip);
-                Socket cl = new Socket(ip, port);
-                DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
-                //Enviar id peticion
-                dos.writeInt(0);
-                dos.flush();
-                //Enviar Nivel
-                dos.writeInt(idServidor);
-                dos.flush();
-            } catch (IOException ex) {
-                ex.toString();
-                System.out.println("Bully(Enviar Nivel): No se pudo conectar con: " + ip);
+        for (ServidorInfo servInfo : servidores) {
+            while(true){
+                try {
+                    System.out.println("Bully: Enviando Nivel a: " + servInfo.getIP());
+                    Socket cl = new Socket(servInfo.getIP(), port);
+                    DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
+                    //Enviar id peticion
+                    dos.writeInt(0);
+                    dos.flush();
+                    //Enviar Nivel
+                    dos.writeInt(miServidor.getIdServidor());
+                    dos.flush();
+                    dos.close();
+                    cl.close();
+                    break;
+                } catch (IOException ex) {
+                    ex.toString();
+                    System.out.println("Bully(Enviar Nivel): No se pudo conectar con: " + servInfo.getIP());
+                }
             }
         }
     }
     
-    public boolean peticionEleccion(int limiteTiempo){
+    public boolean peticionEleccion(){
         //Retornar falso si no es nuevo administrador
 
-        if(servidores.size()<IPs.length)
-            return false;
+        for (ServidorInfo servInfo : servidores)
+            if(servInfo.getIdServidor() == -1)
+                return false;
         
         System.out.println("Bully: Realizando peticion eleccion");
-        for(String ip : IPs){
-            int nivel = servidores.get(ip);
-            if(idServidor > nivel)
+        for(ServidorInfo servInfo : servidores){
+            int nivel = servInfo.getIdServidor();
+            if(!servInfo.isActivo() || miServidor.getIdServidor() > nivel)
                 continue;
             try {
-                Socket cl = new Socket(ip, port);
-                cl.setSoTimeout(3*1000);
+                Socket cl = new Socket(servInfo.getIP(), port);
+                cl.setSoTimeout(5*1000); //int limiteTiempo
                 DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
                 DataInputStream dis = new DataInputStream(cl.getInputStream());
-                
                 
                 dos.writeInt(1);
                 dos.flush();
                 
-                //reciviendo ok
+                //recibiendo ok
                 int r = dis.readInt();
-                
-                
                 dos.close();
                 cl.close();
                 
                 if(r == ok)
                     return false;
+                else if(r == administrando){
+                    administrador = servInfo;
+                    return false;
+                }
             } catch (IOException ex) {
                 System.out.println("Bully: " + ex.toString());
+                servInfo.setActivo(false);
             }
         }
         
         //Enviar nueva administracion
-        idAdmin = idServidor;
         notificarAdministracion();
         return true;
     }
 
     private void notificarAdministracion(){
         System.out.println("Bully: Enviando notificacion administracion a sevidores");
-        for (String ip : IPs) {
+        for (ServidorInfo servInfo : servidores) {
+            if(!servInfo.isActivo())
+                continue;
             try {
-                Socket cl = new Socket(ip, port);
-                cl.setSoTimeout(2*1000);
+                Socket cl = new Socket(servInfo.getIP(), port);
+                cl.setSoTimeout(5*1000); // int limite tiempo
                 DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
                 //Enviar id peticion
                 dos.writeInt(2);
                 dos.flush();
-                //Enviar Nivel
-                dos.writeInt(idServidor);
-                dos.flush();
-                System.out.println("Bully: Se envio notificacion administracion a " + ip);
-                idAdmin = idServidor;
+                System.out.println("Bully: Se envio notificacion administracion a " + servInfo.getIP());
             } catch (IOException ex) {
-                ex.toString();
-                System.out.println("Bully: No se pudo notificar administracion a: " + ip);
+                System.out.println("Bully: No se pudo notificar administracion a: " + servInfo.getIP());
+                servInfo.setActivo(false);
             }
         }
+        administrador = miServidor;
     }
     
     @Override
@@ -156,37 +167,57 @@ public class AlgoritmoBully extends Thread{
                     case 0:
                         //LLEGA IDENTIFICADOR SERVIDOR
                         nivel = dis.readInt();
-                        servidores.put(dirCliente, nivel);
+                        for (ServidorInfo servInfo : servidores) {
+                            if(servInfo.getIP().equals(dirCliente)){
+                                servInfo.setIdServidor(nivel);
+                                servInfo.setActivo(true);
+                                break;
+                            }
+                        }
                         System.out.println("Bully: Registrando: " + dirCliente + "/N: " + nivel);
                         break;
                     case 1:
                         //NOTIFICACION DE ELECCION
                         System.out.println("Bully: Se recibio notificacion de eleccion de servidor: " + dirCliente);
                         //MANDAR OK SI ES MENOR
-                        nivel = servidores.get(dirCliente);
-                        if(idServidor < nivel){
-                            DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
-                            dos.writeInt(ok);
-                            dos.flush();
-                            System.out.println("Bully: Se envio OK a servidor: " + dirCliente);
-                            dos.close();
-                        }else{
-                            DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
-                            dos.writeInt(1);
-                            dos.flush();
-                            System.out.println("Bully: Se envio anti OK a servidor: " + dirCliente);
-                            dos.close();
+                        for (ServidorInfo servInfo : servidores) {
+                            if(servInfo.getIP().equals(dirCliente)){
+                                if(miServidor.getIdServidor() > servInfo.getIdServidor()){
+                                    DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
+                                    if(administrador != null && administrando())
+                                        dos.writeInt(administrando);
+                                    else
+                                        dos.writeInt(ok);
+                                    dos.flush();
+                                    
+                                    System.out.println("Bully: Se envio OK a servidor: " + dirCliente);
+                                    dos.close();
+                                }
+                                if(!servInfo.isActivo())
+                                    servInfo.setActivo(true);
+                                break;
+                            }
                         }
-                        
                         break;
                     case 2:
-                        //NOTIFICACION DE NUEVO ADMINISTRADOR
-                        idAdmin = servidores.get(dirCliente);
-                        ipAdminStr = dirCliente;
-                        System.out.println("Bully: Se recibio notificacion de eleccion de servidor: " + dirCliente);
-                        if(idServidor > idAdmin)
-                            peticionEleccion(5);
-                        break;
+                        //NOTIFICACION DE AMINISTRACION
+                        for (ServidorInfo servInfo : servidores) {
+                            if(servInfo.getIP().equals(dirCliente)){
+                                
+                                if(!servInfo.isActivo())
+                                    servInfo.setActivo(true);
+                                
+                                //El administrador es menor
+                                if(miServidor.getIdServidor() > servInfo.getIdServidor()){
+                                    peticionEleccion();
+                                    break;
+                                }
+                                
+                                administrador = servInfo;
+                                System.out.println("Bully: Nuevo administrador " + dirCliente);
+                                break;
+                            }
+                        }
                 }
                 dis.close();
                 cl.close();

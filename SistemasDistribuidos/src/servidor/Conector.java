@@ -6,9 +6,9 @@ import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
 public class Conector {
-    private static final String URL="jdbc:mysql://localhost:3306/Distribuidos";
-    private static final String USER="root";
-    private static final String PASSWORD="root";
+    private static final String URL = "jdbc:mysql://localhost:3306/Distribuidos";
+    private static final String USER = "root";
+    private static final String PASSWORD = "root";
 
     public Conector() {
     }
@@ -17,7 +17,7 @@ public class Conector {
         Connection con=null;
         try{
         Class.forName("com.mysql.jdbc.Driver");
-        con=(Connection) DriverManager.getConnection(URL, USER, PASSWORD);
+        con = (Connection) DriverManager.getConnection(URL, USER, PASSWORD);
         }catch(Exception e){
            System.out.println(e); 
         }
