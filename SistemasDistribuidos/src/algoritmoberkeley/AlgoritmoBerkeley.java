@@ -155,7 +155,7 @@ public class AlgoritmoBerkeley extends Thread{
             
             else{
                 //Clientes Berkeley
-                System.out.println("Berkeley: Modo cliente.");
+                System.out.println("Berkeley: Modo cliente (Administrador: " + bully.getAdministrador().getIP() + ").");
                 try {
                     sst.clienteBerkeley(limiteTiempo);
                 } catch (IOException ex) {
