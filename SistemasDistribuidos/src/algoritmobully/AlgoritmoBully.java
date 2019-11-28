@@ -11,14 +11,10 @@ import java.util.HashMap;
 public class AlgoritmoBully extends Thread{
     static int ok = 0;
     static int administrando = 1;
-    
-    //HashMap<String, Integer> servidores;
     private ArrayList<ServidorInfo> servidores;
     private final int port;
-    //private String [] IPs;
     private ServidorInfo administrador, miServidor;
-    private String ipAdminStr;
-
+    
     //Falta agregar una bandera para avisar si cambio administrador
     public AlgoritmoBully(String [] IPs, int port, int idServidor) {
         servidores = new ArrayList<>();
@@ -28,8 +24,6 @@ public class AlgoritmoBully extends Thread{
         miServidor = new ServidorInfo("localhost");
         miServidor.setIdServidor(idServidor);
         administrador = null;
-        
-        ipAdminStr = null;
     }
 
     public ServidorInfo getAdministrador() {
@@ -42,10 +36,6 @@ public class AlgoritmoBully extends Thread{
 
     public ArrayList<ServidorInfo> getServidores() {
         return servidores;
-    }
-    
-    public String getStrAdmin(){
-        return ipAdminStr;
     }
     
     public boolean administrando(){

@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  */
 public class ServidorFE extends Thread{
     private int port;
-    private algoritmobully.AlgoritmoBully bebe;
+    private AlgoritmoBully bebe;
     public ServidorFE(AlgoritmoBully bebe) {
         this.port = 7004;
         this.bebe=bebe;
@@ -37,7 +37,7 @@ public class ServidorFE extends Thread{
                     Socket cl = s.accept();           
                     DataOutputStream dos;
                     dos = new DataOutputStream(cl.getOutputStream());
-                    dos.writeUTF(bebe.getStrAdmin());
+                    dos.writeUTF(bebe.getAdministrador().getIP());
                     dos.flush();               
                     dos.close();
                     cl.close();

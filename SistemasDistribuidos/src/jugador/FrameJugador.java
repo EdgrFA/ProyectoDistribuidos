@@ -131,9 +131,9 @@ public class FrameJugador extends JFrame{
     public static void main(String[] args) {
         
         String ip []=new String[3];
-        ip[0]="";
-        ip[1]="";
-        ip[2]="";
+        ip[0]="10.100.78.119";
+        ip[1]="10.100.75.173";
+        ip[2]="10.100.72.34";
         FrameJugador stf = new FrameJugador(ip);
         stf.setVisible(true);
     }
