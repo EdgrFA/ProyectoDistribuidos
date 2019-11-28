@@ -10,6 +10,7 @@ import servidor.FrameServidor;
 
 public class Prueba {
     public static void main(String[] args) {
+        System.out.println("Esta agarrando los cambios");
         String mssg = "Introduce el IP del servidor para replicar";
         int i = 0; 
         String [] LocalIps = {"10.100.75.173","10.100.72.34"};
