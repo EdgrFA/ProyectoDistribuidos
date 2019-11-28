@@ -5,6 +5,8 @@ import algoritmobully.ServidorInfo;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import reloj.RelojComponent;
 import sources.Ports;
 
@@ -126,13 +128,21 @@ public class AlgoritmoBerkeley extends Thread{
     @Override
     public void run() {
         int adminActual = -1;
-        SocketServidorTiempo sst = new SocketServidorTiempo(Ports.puertoBerkeley, reloj);
+        SocketServidorTiempo sst;
+        
+        try {
+            sst = new SocketServidorTiempo(Ports.puertoBerkeley, reloj);
+        } catch (IOException ex) {
+            System.out.println("No se pudo iniciar Berkeley");
+            return;
+        }
         for(;;){
             
             if(bully.getAdministrador() == null){
                 //No existe aun servidor
                 System.out.println("Berkeley: Buscando servidor.");
-                bully.peticionEleccion();
+                if(bully.peticionEleccion() == false)
+                    System.out.println("bully: Se recibio OK");
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {
@@ -157,9 +167,15 @@ public class AlgoritmoBerkeley extends Thread{
                 //Clientes Berkeley
                 System.out.println("Berkeley: Modo cliente (Administrador: " + bully.getAdministrador().getIP() + ").");
                 try {
-                    sst.clienteBerkeley(limiteTiempo);
+                    sst.clienteBerkeley();
                 } catch (IOException ex) {
                     System.out.println("Berkeley(Cliente): " + ex.toString());
+                    for(ServidorInfo si : bully.getServidores()){
+                        if(si.equals(bully.getAdministrador())){
+                            si.setActivo(false);
+                            break;
+                        }
+                    }
                     bully.getAdministrador().setActivo(false);
                     bully.setAdministrador(null);
                 }

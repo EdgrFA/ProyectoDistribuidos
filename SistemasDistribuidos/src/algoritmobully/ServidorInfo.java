@@ -33,5 +33,6 @@ public class ServidorInfo {
 
     public void setActivo(boolean activo) {
         this.activo = activo;
+        System.out.println("Se cambio estado de servidor " + IP + ":" + activo);
     }
 }

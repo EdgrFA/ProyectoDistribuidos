@@ -12,7 +12,7 @@ public class Prueba {
     public static void main(String[] args) {
         String mssg = "Introduce el IP del servidor para replicar";
         int i = 0; 
-        String [] LocalIps = {"192.168.0.9","192.168.0.16","192.168.0.26"};
+        String [] LocalIps = {"10.100.75.173","10.100.72.34"};
         //!!!Falta pedir nivel del servidor
         mssg = "Introduce el id del Servidor";
         int idServidor = Integer.parseInt(JOptionPane.showInputDialog(null, mssg));

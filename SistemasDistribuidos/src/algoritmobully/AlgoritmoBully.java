@@ -94,7 +94,11 @@ public class AlgoritmoBully extends Thread{
         System.out.println("Bully: Realizando peticion eleccion");
         for(ServidorInfo servInfo : servidores){
             int nivel = servInfo.getIdServidor();
-            if(!servInfo.isActivo() || miServidor.getIdServidor() > nivel)
+            if(!servInfo.isActivo()){
+                System.out.println("Eleccion: " + servInfo.getIP() + " esta inactivo");
+                continue;
+            }
+            if(miServidor.getIdServidor() > nivel)
                 continue;
             try {
                 Socket cl = new Socket(servInfo.getIP(), port);
@@ -110,8 +114,10 @@ public class AlgoritmoBully extends Thread{
                 dos.close();
                 cl.close();
                 
-                if(r == ok)
+                if(r == ok){
+                    System.out.println("Se recibio OK");
                     return false;
+                }
                 else if(r == administrando){
                     administrador = servInfo;
                     return false;
@@ -169,6 +175,7 @@ public class AlgoritmoBully extends Thread{
                         nivel = dis.readInt();
                         for (ServidorInfo servInfo : servidores) {
                             if(servInfo.getIP().equals(dirCliente)){
+                                System.out.println("Llego: " + dirCliente);
                                 servInfo.setIdServidor(nivel);
                                 servInfo.setActivo(true);
                                 break;

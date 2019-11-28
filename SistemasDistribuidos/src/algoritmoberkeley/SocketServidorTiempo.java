@@ -11,10 +11,13 @@ import reloj.RelojComponent;
 public class SocketServidorTiempo {
     private final RelojComponent reloj;
     private final int port;
+    private ServerSocket servidorReloj;
 
-    public SocketServidorTiempo(int port, RelojComponent reloj) {
+    public SocketServidorTiempo(int port, RelojComponent reloj) throws IOException {
         this.port = port;
         this.reloj = reloj;
+        this.servidorReloj = new ServerSocket(port);
+        servidorReloj.setSoTimeout(10*1000);
     }
     
     public RelojBerkeley consultarTiempoServidor(String ip) throws IOException{
@@ -60,49 +63,41 @@ public class SocketServidorTiempo {
         return new RelojBerkeley(ip, diferenciaTiempo);
     }
     
-    public void clienteBerkeley(int limiteTiempo) throws IOException{
-        ServerSocket servidorReloj = new ServerSocket(port);
-        servidorReloj.setSoTimeout(limiteTiempo*1000);
-        try{
-            for(;;){
-                //Esperamos una conexión 
-                Socket cl = servidorReloj.accept();                        
-                DataOutputStream dos= new DataOutputStream(cl.getOutputStream());                        
-                DataInputStream dis= new DataInputStream(cl.getInputStream());
+    public void clienteBerkeley() throws IOException{
+        for(;;){
+            //Esperamos una conexión 
+            Socket cl = servidorReloj.accept();                        
+            DataOutputStream dos= new DataOutputStream(cl.getOutputStream());                        
+            DataInputStream dis= new DataInputStream(cl.getInputStream());
 
-                if(dis.readInt()==1){
-                    //Enviar diferencia de tiempo al asministrador
-                   int horaServidor = dis.readInt();
-                   int minutosServidor = dis.readInt();
-                   int segundosServidor = dis.readInt();
+            if(dis.readInt()==1){
+                //Enviar diferencia de tiempo al asministrador
+               int horaServidor = dis.readInt();
+               int minutosServidor = dis.readInt();
+               int segundosServidor = dis.readInt();
 
-                   int difTiempos = (reloj.getHoras() - horaServidor)*3600;
-                   difTiempos += (reloj.getMinutos() - minutosServidor)*60;
-                   difTiempos += reloj.getSegundos() - segundosServidor;
+               int difTiempos = (reloj.getHoras() - horaServidor)*3600;
+               difTiempos += (reloj.getMinutos() - minutosServidor)*60;
+               difTiempos += reloj.getSegundos() - segundosServidor;
 
-                   dos.writeInt(difTiempos);
-                   dos.flush();
-                   System.out.println("Berkeley(Cliente): Se envio diferencia de tiempo");
-                }else{
-                    //Ajuste de reloj
-                    int ajuste = dis.readInt();
-                    System.out.println("Berkeley(Cliente): Ajuste de segundos de " + ajuste);
-                    if(ajuste < 0){
-                        reloj.realentizarTiempo(ajuste);
-                        System.out.println("Berkeley(Cliente): Se realentizo el tiempo.");
-                    } else{
-                        reloj.adelantarTiempo(ajuste);
-                        System.out.println("Berkeley(Cliente): Se recorrio tiempo.");
-                    }
-                }       
-                dis.close();
-                dos.close();                    
-                cl.close();
-            }
-        }catch (SocketTimeoutException ste) {
-            System.out.println("Berkeley(Cliente): " + ste.toString());
-        }finally{
-            servidorReloj.close();
+               dos.writeInt(difTiempos);
+               dos.flush();
+               System.out.println("Berkeley(Cliente): Se envio diferencia de tiempo");
+            }else{
+                //Ajuste de reloj
+                int ajuste = dis.readInt();
+                System.out.println("Berkeley(Cliente): Ajuste de segundos de " + ajuste);
+                if(ajuste < 0){
+                    reloj.realentizarTiempo(ajuste);
+                    System.out.println("Berkeley(Cliente): Se realentizo el tiempo.");
+                } else{
+                    reloj.adelantarTiempo(ajuste);
+                    System.out.println("Berkeley(Cliente): Se recorrio tiempo.");
+                }
+            }       
+            dis.close();
+            dos.close();                    
+            cl.close();
         }
     }
     
