@@ -83,7 +83,7 @@ public class FrameServidor extends JFrame{
         ServidorFE sfe = new ServidorFE(bully);
         sfe.start();
         //Servidor para jugadores
-        SocketServidor ss = new SocketServidor(IPs, Ports.puertoServidor, Ports.puertoReplicar, 
+        SocketServidor ss = new SocketServidor(bully, Ports.puertoServidor, Ports.puertoReplicar, 
                     reloj, Caracter, Contador, conexionValue);
         ss.start();
     }

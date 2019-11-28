@@ -21,7 +21,7 @@ public class AlgoritmoBully extends Thread{
         for (String IP : IPs)
             servidores.add(new ServidorInfo(IP));
         this.port = port;
-        miServidor = new ServidorInfo("localhost");
+        miServidor = new ServidorInfo("10.100.78.119");
         miServidor.setIdServidor(idServidor);
         administrador = null;
     }

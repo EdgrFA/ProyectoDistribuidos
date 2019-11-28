@@ -1,6 +1,8 @@
 package servidor;
 
 import Caracteres.Contador;
+import algoritmobully.AlgoritmoBully;
+import algoritmobully.ServidorInfo;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -20,16 +22,16 @@ public class SocketServidor extends Thread{
     private final int port, portServidorR;
     private final JLabel Caracter[], Contador[], ip;
     private RelojComponent reloj;
-    private String [] IPsReplica; //Utilizar solo servidores activos
-
-    public SocketServidor(String [] IPs,int port, int portServidorR, 
+    private AlgoritmoBully bully;
+    
+    public SocketServidor(AlgoritmoBully bully,int port, int portServidorR, 
                 RelojComponent reloj, JLabel[] Caracter, JLabel Contador[], JLabel ip) {
         this.port = port;
         this.portServidorR = portServidorR;
         this.reloj = reloj;
         this.Caracter = Caracter;
         this.Contador = Contador;
-        this.IPsReplica = IPs;
+        this.bully = bully;
         this.ssr = null;
         this.ip=ip;
     }
@@ -112,9 +114,12 @@ public class SocketServidor extends Thread{
         }
         
         //Replicar resultado
+        System.out.println("Enviando replica!!!!!");
         try {
-            for (String ipR : IPsReplica) {
-                ssr.replicarRegistro(ipR, suma);
+            for (ServidorInfo si : bully.getServidores()) {
+                if(!si.isActivo())
+                    continue;
+                ssr.replicarRegistro(si.getIP(), suma);
             }
         } catch (IOException ex) {
             System.out.println("Replica: " + ex.toString());

@@ -120,7 +120,9 @@ public class FrameJugador extends JFrame{
                 DataInputStream dis = new DataInputStream(cl.getInputStream());                                                
                 Admin=dis.readUTF();
                 dis.close();
-                cl.close();                                
+                cl.close();
+                System.out.println("Se recibio: " + Admin);
+                return Admin;
             } catch (IOException ex) {
                 System.out.println("Bully: " + ex.toString());
             }

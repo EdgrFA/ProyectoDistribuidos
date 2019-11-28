@@ -32,8 +32,7 @@ public class ServidorFE extends Thread{
         ServerSocket s = null;
         try {
             s = new ServerSocket(7004);        
-            for(;;){           
-                
+            for(;;){
                     Socket cl = s.accept();           
                     DataOutputStream dos;
                     dos = new DataOutputStream(cl.getOutputStream());
